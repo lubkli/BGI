@@ -1,0 +1,27 @@
+Building the library
+--------------------
+
+To compile and install Xbgi, make sure you installed the development
+packages for X11; on Ubuntu, it's libx11-dev and its depencencies. You
+can use gcc or clang.
+
+Then:
+
+  $ cd src
+  $ make
+  $ sudo make install
+
+which installs libXbgi.a in /usr/lib and graphics.h in /usr/include.
+
+Type 'make demo' to make a demo program. More test programs are
+available in directory test/ and can be compiled after you have built
+libXbgi.a:
+
+  $ cd src/test
+  $ make
+
+Most programs written for BGI graphics in Turbo C/Borland C++ should
+compile unmodified. See Using.txt.
+
+.rpm and .deb packages are available at
+http://libxbgi.sourceforge.net/

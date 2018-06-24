@@ -1,0 +1,221 @@
+Compiling programs with Xbgi
+----------------------------
+
+The main purpose of Xbgi is to provide a compatibility library to port
+old programs written for Turbo/Borland C to X11. And, of course, to
+write new graphics programs in an easy way.
+
+Documentation and sample BGI programs are available at this address:
+http://www.cs.colorado.edu/~main/cs1300/doc/bgi/
+Nearly all programs can be compiled with Xbgi.
+
+To compile a program against libXbgi:
+
+  gcc -o program program.c /usr/lib/libXbgi.a -lX11 -lm
+
+Most old programs that use the original BGI library should compile
+with no modification. For instance,
+
+  int gd = DETECT, gm;
+  initgraph (&gd, &gm, "");
+
+will open a 640x480 window. To specify the window size, you can use
+the new X11 driver:
+
+  gd = X11;
+  gm = <mode>;
+
+where <mode> can be one of the following:
+
+  X11_CGALO       320x200
+  X11_CGAHI       640x200
+  X11_EGA         640x350
+  X11_VGA         640x480
+  X11_640x480     640x480
+  X11_HERC        720x348
+  X11_PC3270      720x350
+  X11_SVGALO      800x600
+  X11_800x600     800x600
+  X11_SVGAMED1    1024x768
+  X11_1024x768    1024x768
+  X11_SVGAMED2    1152x900
+  X11_1152x900    1152x900
+  X11_SVGAHI      1280x1024
+  X11_1280x1024   1280x1024
+  X11_WXGA        1366x768
+  X11_1366x768    1366x768
+  X11_FULLSCREEN  full screen
+
+You may want to use initwindow(int width, int height) instead.
+
+
+Differences
+-----------
+
+- The following functions are present but not implemented (i.e. they
+may be called but do nothing):
+
+  _graphfreemem.c     - unneeded; not used by floodfill()
+  _graphgetmem.c      - unneeded; not used by floodfill()
+  installuserdriver   - it makes no sense in X11
+  installuserfont
+  registerbgidriver   - it makes no sense in X11
+  registerbgifont     - it makes no sense in X11
+  restorecrtmode      - it just clears the window
+  setgraphbufsize     - unneeded; not used by floodfill()
+  setgraphmode        - it just returns to the open window
+
+- floodfill() only uses SOLID_FILL.
+
+- setpalette() only affects future drawing. That is, you can't
+implement a "rotating palette animation" as in Turbo C.
+
+- Default fonts are:
+
+  "fixed" -> DEFAULT_FONT
+  "10x20" -> TRIPLEX_FONT
+  "6x12"  -> SMALL_FONT
+  "12x24" -> SANSSERIF_FONT
+  "12x24  -> GOTHIC_FONT
+
+These are basic X11 fonts, usually included in the 'xfonts-base'
+package in Ubuntu and similar Linux distributions. In general, X11
+fonts look quite different from Borland fonts.
+
+
+Additions
+---------
+
+- int getmaxheight() and int getmaxwidth() return the screen (= root
+window) height and width. These functions may be called before
+initwindow() to set up the screen dimensions accordingly.
+
+- void initwindow(int width, int height) lets you open a window
+specifying its dimensions.
+
+- void setrgbpalette(int color, int r, int g, int b) sets an
+additional palette containing RGB colours (up to MAXRGBCOLORS + 1).
+See example in test/mandelbrot.c.
+
+- void setrgbcolor(int col) and void setbkrgbcolor(int col) are the
+RGB equivalent of setcolor(int col) and setbkcolor(int col). 'col' is
+an allocated colour entry in the RGB palette.
+
+- COLOR(int r, int g, int b) can be used as an argument for
+setcolor(int col) and setbkcolor(int col), as an alternative to 
+setrgbcolor(int col) and setbkrgbcolor(int col). Allocating colours
+with setrgbpalette() and using setrgbcolor() is much faster, though.
+
+- IS_BGI_COLOR(int c) and IS_RGB_COLOR(int c) return 1 if the current
+colour is standard BGI or RGB, respectively.
+
+- RED_VALUE(int c), GREEN_VALUE(int c), and BLUE_VALUE(int c) are
+macros that return the R, G, B components of an RGB colour.
+
+- void _putpixel (int x, int y) is equivalent to putpixel (int x, int
+y, int col), but is faster: it only draws on the visible window, and
+it does not update the X, Y drawing coordinates. See test/fern.c
+
+- void setwritemode(int mode) supports COPY_PUT, XOR_PUT and the new
+values OR_PUT, AND_PUT, NOT_PUT.
+
+- random(range) is defined as macro: rand()%range
+
+- int kbhit(), provided by conio.h in Turbo C/Borland C++, returns 1
+when a key is pressed, except Ctrl, Shift, Alt, and so on. int
+xkbhit() returns 1 when *any* key is pressed, including Ctrl, Shift,
+Alt, and so on.
+
+- int getch() waits for a key and returns its ASCII code. Special keys
+are also reported:
+
+  KEY_HOME         80
+  KEY_LEFT         81
+  KEY_UP           82
+  KEY_RIGHT        83
+  KEY_DOWN         84
+  KEY_PGUP         85
+  KEY_PGDN         86
+  KEY_END          87
+  KEY_INSERT       99
+  KEY_DELETE       -1
+  KEY_F1          -66
+  KEY_F2          -65
+  KEY_F3          -64
+  KEY_F4          -63
+  KEY_F5          -62
+  KEY_F6          -61
+  KEY_F7          -60
+  KEY_F8          -59
+  KEY_F9          -58
+  KEY_F10         -57
+  KEY_F11         -56
+  KEY_F12         -55
+  KEY_LEFT_SHIFT  -31
+  KEY_RIGHT_SHIFT -30
+  KEY_LEFT_CTRL   -29
+  KEY_RIGHT_CTRL  -28
+  KEY_LEFT_ALT    -23
+  KEY_LEFT_WIN    -21
+  KEY_RIGHT_WIN   -20
+  KEY_ALT_GR        3
+  KEY_TAB           8
+  KEY_BS            9
+  KEY_RET          13
+  KEY_PAUSE        19
+  KEY_SCR_LOCK     20
+  KEY_ESC          27
+
+
+- void delay(msec) waits for msec milliseconds.
+
+- int mouseclick (void) returns the code of the mouse button that was
+clicked, or 0 if none was clicked. Mouse buttons are defined in
+graphics.h:
+
+  WM_LBUTTONDOWN  1
+  WM_MBUTTONDOWN  2
+  WM_RBUTTONDOWN  3
+  WM_WHEELUP      4
+  WM_WHEELDOWN    5
+
+- int mousex(void) and int mousey(void) return the mouse coordinates
+of the last click.
+
+- int ismouseclick (int kind) returns 1 if the 'kind' mouse button was
+clicked.
+
+- void getmouseclick (int kind, int&x, int&y) sets the x, y
+coordinates of the last button click expected by ismouseclick().
+
+- int getevent() waits for a keypress or mouse click, and returns the
+code of the mouse button or key that was pressed.
+
+
+Issues
+------
+
+- If the virtual desktop (when available) is changed, or the window is
+minimised, its contents are lost. This "bug" is actually a feature,
+aimed at making Xbgi as fast as possible. For instance, the 'fern.c'
+test program is about 4 times faster than its GRX equivalent (see
+below).
+
+- The charsize parameter in settextstyle() has no efffect.
+
+
+Links
+-----
+
+1. The GRX graphics library, http://grx.gnu.de/, provides a BGI
+subsystem which is mostly compatible with the original Borland
+library. GRX is free software.
+
+2. XBGI, http://www.aihara.co.jp/~taiji/xbgi/, is a freeware
+implementation that also provides PostScript output. 
+
+3. Libgraph, http://savannah.nongnu.org/projects/libgraph/, is another
+free software implementation.
+
+4. TurboC http://www.sandroid.org/TurboC/index.html aims at porting
+Turbo C sources to gcc on Unix, including BGI.

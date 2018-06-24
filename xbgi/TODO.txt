@@ -1,0 +1,11 @@
+TO DO
+-----
+
+Next functions to be implemented, possibly in a way compatible with
+the BGI Windows extensions here:
+
+http://www.cs.colorado.edu/~main/cs1300/doc/bgi/
+
+- more mouse routines
+
+- fix charsize parameter in settextstyle()

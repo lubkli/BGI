@@ -1,0 +1,23 @@
+README
+------
+
+This is Xbgi, part of PtoC:
+http://www.garret.ru/ptoc/Readme.htm
+
+PtoC implements BGI (Borland Graphics Interface) emulation for MS
+Windows and X11. The former is called WinBGI, and is available at
+http://www.garret.ru/winbgi.zip. Xbgi is an X11 implementation that
+works on Linux and other Unix systems.
+
+PtoC is yet another Pascal to C/C++ converter. The primary idea of
+this converter is to produce readable and supportable code which
+preserves style of original code as far as possible.
+
+PtoC and associated software were written by Dr. Konstantin Knizhnik,
+http://www.garret.ru/
+
+RGB colours, mouse support, fill and line patterns, minor fixes, test
+programs and packaging by Dr. Guido Gonzato, guido.gonzato at
+gmail.com. Packages (.rpm and .deb) and documentation are available at
+http://libxbgi.sourceforge.net/
+
